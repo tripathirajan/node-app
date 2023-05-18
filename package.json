@@ -1,6 +1,6 @@
 {
   "name": "@tripathirajan/node-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "node app build using typescript handle Application stuff",
   "main": "dist/index.js",
   "repository": "https://github.com/tripathirajan/node-app.git",
