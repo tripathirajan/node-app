@@ -4,6 +4,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
 import { AddressInfo } from 'net';
+import { LogManager } from '@tripathirajan/logtrace';
+const logger = LogManager.getLogger('Node-Application');
+type LoggerType = typeof logger;
 
 type Environment = 'development' | 'production';
 type AppMiddleWare = (req: express.Request, res: express.Response, next: (err?: any) => any) => void;
@@ -79,7 +82,7 @@ class Application {
   /**
    * Logger  of application
    */
-  private logger: any;
+  private logger: LoggerType = logger;
 
   /**
    * Router  of application
@@ -104,8 +107,8 @@ class Application {
    * Init logger
    * @param logger
    */
-  public initLogger(logger: any) {
-    this.logger = logger;
+  public initCustomLogger(customLogger: any) {
+    this.logger = customLogger;
   }
   /**
    * Inits application
@@ -243,8 +246,8 @@ class Application {
       throw new Error('Logger not added with Application. Please set logger with method: initLogger');
     }
     if (this.server) {
-      this.server.on('error', this.serverError);
-      this.server.on('listening', this.serverListener);
+      this.server.on('error', this.serverError.bind(this));
+      this.server.on('listening', this.serverListener.bind(this));
       this.server.listen(this.port);
     }
   }

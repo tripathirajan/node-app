@@ -8,8 +8,8 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "test": "jest --config jestconfig.json",
-    "prebuild": "npm run lint && npm run format",
+    "test": "jest --config jestconfig.json --detectOpenHandles",
+    "prebuild": "npm run lint && npm run format && npm run test",
     "build": "tsc --emitDeclarationOnly",
     "prestart": "npm run build",
     "start": "node dist/index.js",
@@ -33,6 +33,7 @@
   },
   "homepage": "https://github.com/tripathirajan/node-app.git#readme",
   "devDependencies": {
+    "@tripathirajan/logtrace": "^1.0.0-beta",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.1",
