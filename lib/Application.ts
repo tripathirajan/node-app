@@ -116,12 +116,17 @@ class Application {
     this.initializeMiddleware();
     // register routes
     this.registerRoute();
+
     // server
     if (this.isSecureHttp) {
       this.createHttpsServer();
     } else {
       this.createHttpServer();
     }
+    // start app
+    this.startApp();
+    // error handler
+    this.app.use(this.errorHandler);
   }
 
   /**
@@ -233,12 +238,21 @@ class Application {
   /**
    * Starts app
    */
-  public startApp(): void {
+  private startApp(): void {
+    if (this.logger === undefined) {
+      throw new Error('Logger not added with Application. Please set logger with method: initLogger');
+    }
     if (this.server) {
       this.server.on('error', this.serverError);
       this.server.on('listening', this.serverListener);
       this.server.listen(this.port);
     }
+  }
+  private errorHandler(err: Error, req: express.Request, res: express.Response, next: (err?: any) => any) {
+    if (this.logger) {
+      this.logger.error(err);
+    }
+    res.status(500).json({ message: 'Internal server error.' });
   }
 }
 
