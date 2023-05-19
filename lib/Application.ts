@@ -4,9 +4,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
 import { AddressInfo } from 'net';
-import { LogManager } from '@tripathirajan/logtrace';
-const logger = LogManager.getLogger('Node-Application');
-type LoggerType = typeof logger;
 
 type Environment = 'development' | 'production';
 type AppMiddleWare = (req: express.Request, res: express.Response, next: (err?: any) => any) => void;
@@ -26,6 +23,7 @@ type AppConfig = {
   allowedCorsOrigin?: string[];
   middleware?: AppMiddleWare[];
   routes?: AppRoute[];
+  customErrorHandler?: (err: Error) => void;
 };
 
 class Application {
@@ -80,18 +78,19 @@ class Application {
   ];
 
   /**
-   * Logger  of application
-   */
-  private logger: LoggerType = logger;
-
-  /**
    * Router  of application
    */
   private router: Router = Router();
 
+  private customErrorHandler: undefined | ((error: Error) => void) = undefined;
+
+  /**
+   * Creates an instance of application.
+   * @param config
+   */
   constructor(config: AppConfig) {
     this.app = express();
-    const { port, appName, isSecureHttp, allowedCorsOrigin, middleware, routes } = config;
+    const { port, appName, isSecureHttp, allowedCorsOrigin, middleware, routes, customErrorHandler } = config;
     if (port !== undefined) this.port = port;
     if (appName !== undefined) this.appName = appName;
     if (isSecureHttp !== undefined) this.isSecureHttp = isSecureHttp;
@@ -101,15 +100,11 @@ class Application {
     }
     if (middleware !== undefined) this.appMiddleware = middleware;
     if (routes !== undefined) this.routes = routes;
+    if (customErrorHandler !== undefined && typeof customErrorHandler === 'function') {
+      this.customErrorHandler = customErrorHandler;
+    }
   }
 
-  /**
-   * Init logger
-   * @param logger
-   */
-  public initCustomLogger(customLogger: any) {
-    this.logger = customLogger;
-  }
   /**
    * Inits application
    * @returns init
@@ -129,7 +124,7 @@ class Application {
     // start app
     this.startApp();
     // error handler
-    this.app.use(this.errorHandler);
+    this.app.use(this.errorHandler.bind(this));
   }
 
   /**
@@ -173,43 +168,23 @@ class Application {
   }
 
   /**
-   * Parses route method
-   * @param method
-   * @returns
-   */
-  private parseRouteMethod(method: HttpMethod) {
-    switch (method) {
-      case 'get':
-        return this.router.get;
-      case 'post':
-        return this.router.post;
-      case 'put':
-        return this.router.put;
-      case 'patch':
-        return this.router.patch;
-      default:
-        return this.router.get;
-    }
-  }
-  /**
    * Init routes
    */
   private registerRoute(): void {
     if (this.routes !== undefined && this.routes.length > 0) {
-      let routeMethod = this.router.get;
       for (const route of this.routes) {
-        routeMethod = this.parseRouteMethod(route.method);
         if (route.middleware) {
-          routeMethod(route.path, route.middleware, route.handler);
+          this.router[route.method](route.path, route.middleware, route.handler);
         } else {
-          routeMethod(route.path, route.handler);
+          this.router[route.method](route.path, route.handler);
         }
       }
+      this.app.use('/', this.router);
     }
     this.app.all('*', (req: express.Request, res: express.Response) => {
       res.status(404);
       if (req.accepts('html')) {
-        res.sendFile(path.join(__dirname, 'errors', '404.html'));
+        res.sendFile(path.join(process.cwd(), 'errors', '404.html'));
       } else if (req.accepts('json')) {
         res.json({ message: ' Not found.' });
       } else {
@@ -235,16 +210,13 @@ class Application {
    */
   private serverListener(): void {
     const addressInfo: AddressInfo = this.server?.address() as AddressInfo;
-    this.logger.info(`${this.appName} running on ${addressInfo.address}:${this.port}`);
+    this.logApplicationStatus(addressInfo.address, this.port);
   }
 
   /**
    * Starts app
    */
   private startApp(): void {
-    if (this.logger === undefined) {
-      throw new Error('Logger not added with Application. Please set logger with method: initLogger');
-    }
     if (this.server) {
       this.server.on('error', this.serverError.bind(this));
       this.server.on('listening', this.serverListener.bind(this));
@@ -252,10 +224,23 @@ class Application {
     }
   }
   private errorHandler(err: Error, req: express.Request, res: express.Response, next: (err?: any) => any) {
-    if (this.logger) {
-      this.logger.error(err);
+    if (this.customErrorHandler && typeof this.customErrorHandler === 'function') {
+      this.customErrorHandler(err);
     }
     res.status(500).json({ message: 'Internal server error.' });
+  }
+  private logApplicationStatus(host: string, port: number) {
+    process.stdout.write('\x1b[32m');
+    process.stdout.write('*************************************************\n');
+    process.stdout.write(`App Name: ${this.appName}\n`);
+    process.stdout.write(`Host: ${host || 'localhost'}\n`);
+    process.stdout.write(`Port: ${port}\n`);
+    process.stdout.write(`Environment: ${this.environment}\n`);
+    process.stdout.write(`Status: Running \n`);
+    process.stdout.write('*************************************************\n \n');
+    process.stdout.write('Thanks for using package @tripathirajan/node-app \n \n');
+    process.stdout.write('*************************************************\n');
+    process.stdout.write('\x1b[00m');
   }
 }
 
