@@ -1,7 +1,7 @@
 {
   "name": "@tripathirajan/node-app",
   "version": "1.0.4",
-  "description": "node app build using typescript handle Application stuff",
+  "description": "NodeJs-ExpressJs framework which handle basic setup for new new app",
   "main": "dist/index.js",
   "repository": "https://github.com/tripathirajan/node-app.git",
   "author": "Rajan Tripathi <tripathirajan3@gmail.com>",
