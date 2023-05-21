@@ -1,6 +1,6 @@
 ## @tripathirajan/node-app
 
-Logger package build on top of `pino`, `pino-pretty` and `file-stream-rotator`.
+NodeJs-ExpressJs framework which handle basic setup for new new app.
 
 ### Installation
 
