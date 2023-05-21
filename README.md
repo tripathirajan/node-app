@@ -1,6 +1,6 @@
 ## @tripathirajan/node-app
 
-NodeJs-ExpressJs framework which handle basic setup for new new app.
+NodeJs-ExpressJs framework which handle basic setup for new app.
 
 ### Installation
 
