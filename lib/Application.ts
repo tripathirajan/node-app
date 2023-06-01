@@ -1,30 +1,11 @@
-import express, { Router } from 'express';
-import http from 'http';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import express, { Router } from 'express';
 import helmet from 'helmet';
-import path from 'path';
+import http from 'http';
 import { AddressInfo } from 'net';
-
-type Environment = 'development' | 'production';
-type AppMiddleWare = (req: express.Request, res: express.Response, next: (err?: any) => any) => void;
-type HttpMethod = 'all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head';
-
-type AppRoute = {
-  path: string;
-  method: HttpMethod;
-  handler: (req: express.Request, res: express.Response) => void;
-  middleware?: AppMiddleWare;
-};
-
-type AppConfig = {
-  port: number;
-  appName: string;
-  isSecureHttp: boolean;
-  allowedCorsOrigin?: string[];
-  middleware?: AppMiddleWare[];
-  routes?: AppRoute[];
-  customErrorHandler?: (err: Error) => void;
-};
+import path from 'path';
+import { AppConfig, AppMiddleWare, AppRoute, Environment } from './types';
 
 class Application {
   /**
@@ -90,7 +71,9 @@ class Application {
    */
   constructor(config: AppConfig) {
     this.app = express();
-    const { port, appName, isSecureHttp, allowedCorsOrigin, middleware, routes, customErrorHandler } = config;
+    const { port, appName, isSecureHttp, allowedCorsOrigin, middleware, routes, customErrorHandler, envConfig } =
+      config;
+    dotenv.config(envConfig !== undefined ? envConfig : {});
     if (port !== undefined) this.port = port;
     if (appName !== undefined) this.appName = appName;
     if (isSecureHttp !== undefined) this.isSecureHttp = isSecureHttp;
