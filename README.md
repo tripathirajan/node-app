@@ -26,7 +26,7 @@ const app = Application({
     routes:[{
         method:'get',
         path:'/info',
-        handler:(req, res)=>{}
+        handler:(req, res)=>{},
         middleware:(req, res, next)=>{} // optional
     }],
     middleware:[
