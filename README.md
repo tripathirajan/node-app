@@ -97,7 +97,7 @@ process.exit(1);
 
 ```console
 *************************************************
-App Name: Backend-API
+App Name: test-app
 Host: ::
 Port: 8080
 Environment: development
