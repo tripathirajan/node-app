@@ -89,10 +89,12 @@ const app = Application({
      * add path if want to enable https
      * make sure isSecureHttp: true and keys path added
      * keep it blank is using http
+     *
+     * @note coming soon with version 1.0.7
      * */
     httpsServerConfig:{
-        keyPath:'/certificates/key.pem',
-        certPath:'/certificates/cert.pem'
+        keyPath:'/path to key.pem',
+        certPath:'/path to cert.pem'
     }
 })
 
