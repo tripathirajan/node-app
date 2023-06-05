@@ -32,7 +32,7 @@ class Application {
   /**
    * Environment  of application
    */
-  private environment: Environment = (process.env.environment || 'development') as Environment;
+  private environment: Environment = 'development' as Environment;
 
   /**
    * Server  of application
@@ -99,6 +99,9 @@ class Application {
     }
     if (httpsServerConfig !== undefined) {
       this.httpsServerConfig = httpsServerConfig;
+    }
+    if (process.env.environment) {
+      this.environment = process.env.environment as Environment;
     }
   }
 
@@ -219,7 +222,7 @@ class Application {
     res.status(500).json({ message: 'Internal server error.' });
   }
   private logApplicationStatus(host: string, port: number) {
-    process.stdout.write('\x1b[32m');
+    process.stdout.write('\x1b[34m');
     process.stdout.write('*************************************************\n');
     process.stdout.write(`App Name: ${this.appName}\n`);
     process.stdout.write(`Host: ${host || 'localhost'}\n`);
@@ -227,7 +230,10 @@ class Application {
     process.stdout.write(`Environment: ${this.environment}\n`);
     process.stdout.write(`Status: Running \n`);
     process.stdout.write('*************************************************\n \n');
-    process.stdout.write('Thanks for using package @tripathirajan/node-app \n \n');
+    process.stdout.write('Thanks for using package');
+    process.stdout.write('\x1b[00m');
+    process.stdout.write('\x1b[31m @tripathirajan/node-app \x1b[00m \n \n');
+    process.stdout.write('\x1b[34m');
     process.stdout.write('*************************************************\n');
     process.stdout.write('\x1b[00m');
   }
