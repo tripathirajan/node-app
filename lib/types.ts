@@ -12,6 +12,10 @@ export type AppRoute = {
   middleware?: AppMiddleWare;
 };
 
+export type HttpsServerConfig = {
+  keyPath: string;
+  certPath: string;
+};
 export type AppConfig = {
   port: number;
   appName: string;
@@ -21,4 +25,5 @@ export type AppConfig = {
   routes?: AppRoute[];
   customErrorHandler?: (err: Error) => void;
   envConfig?: DotenvConfigOptions;
+  httpsServerConfig?: HttpsServerConfig;
 };
