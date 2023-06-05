@@ -106,8 +106,8 @@ class Application {
     if (httpsServerConfig !== undefined) {
       this.httpsServerConfig = httpsServerConfig;
     }
-    if (process.env.environment) {
-      this.environment = process.env.environment as Environment;
+    if (process.env.NODE_ENV) {
+      this.environment = process.env.NODE_ENV as Environment;
     }
   }
 

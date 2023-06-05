@@ -1,7 +1,7 @@
 import { DotenvConfigOptions } from 'dotenv';
 import express from 'express';
 
-export type Environment = 'development' | 'production';
+export type Environment = 'development' | 'production' | 'testing' | 'staging';
 export type AppMiddleWare = (req: express.Request, res: express.Response, next: (err?: any) => any) => void;
 export type HttpMethod = 'all' | 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head';
 
