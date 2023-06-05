@@ -5,7 +5,8 @@ import helmet from 'helmet';
 import http from 'http';
 import { AddressInfo } from 'net';
 import path from 'path';
-import { AppConfig, AppMiddleWare, AppRoute, Environment } from './types';
+import { AppConfig, AppMiddleWare, AppRoute, Environment, HttpsServerConfig } from './types';
+import { default as AppServer } from './AppServer';
 
 class Application {
   /**
@@ -65,14 +66,24 @@ class Application {
 
   private customErrorHandler: undefined | ((error: Error) => void) = undefined;
 
+  private httpsServerConfig: HttpsServerConfig | undefined;
   /**
    * Creates an instance of application.
    * @param config
    */
   constructor(config: AppConfig) {
     this.app = express();
-    const { port, appName, isSecureHttp, allowedCorsOrigin, middleware, routes, customErrorHandler, envConfig } =
-      config;
+    const {
+      port,
+      appName,
+      isSecureHttp,
+      allowedCorsOrigin,
+      middleware,
+      routes,
+      customErrorHandler,
+      envConfig,
+      httpsServerConfig,
+    } = config;
     dotenv.config(envConfig !== undefined ? envConfig : {});
     if (port !== undefined) this.port = port;
     if (appName !== undefined) this.appName = appName;
@@ -85,6 +96,9 @@ class Application {
     if (routes !== undefined) this.routes = routes;
     if (customErrorHandler !== undefined && typeof customErrorHandler === 'function') {
       this.customErrorHandler = customErrorHandler;
+    }
+    if (httpsServerConfig !== undefined) {
+      this.httpsServerConfig = httpsServerConfig;
     }
   }
 
@@ -99,28 +113,20 @@ class Application {
     this.registerRoute();
 
     // server
+    const server = new AppServer(this.app);
     if (this.isSecureHttp) {
-      this.createHttpsServer();
+      this.server = server.createServer({
+        isHttps: true,
+        keyPath: this.httpsServerConfig?.keyPath,
+        certPath: this.httpsServerConfig?.certPath,
+      });
     } else {
-      this.createHttpServer();
+      this.server = server.createServer({ isHttps: false });
     }
     // start app
     this.startApp();
     // error handler
     this.app.use(this.errorHandler.bind(this));
-  }
-
-  /**
-   * Creates http server
-   */
-  private createHttpServer(): void {
-    this.server = http.createServer(this.app);
-  }
-  /**
-   * Creates https server
-   */
-  private createHttpsServer(): void {
-    // todo: create https server
   }
 
   /**
