@@ -64,8 +64,14 @@ class Application {
    */
   private router: Router = Router();
 
+  /**
+   * Custom error handler of application
+   */
   private customErrorHandler: undefined | ((error: Error) => void) = undefined;
 
+  /**
+   * Https server config of application
+   */
   private httpsServerConfig: HttpsServerConfig | undefined;
   /**
    * Creates an instance of application.
