@@ -26,4 +26,5 @@ export type AppConfig = {
   customErrorHandler?: (err: Error) => void;
   envConfig?: DotenvConfigOptions;
   httpsServerConfig?: HttpsServerConfig;
+  enableSwagger: boolean;
 };

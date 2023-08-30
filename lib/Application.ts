@@ -73,6 +73,12 @@ class Application {
    * Https server config of application
    */
   private httpsServerConfig: HttpsServerConfig | undefined;
+
+  /**
+   * Enable swagger of application
+   */
+  private enableSwagger: boolean = false;
+
   /**
    * Creates an instance of application.
    * @param config
@@ -89,6 +95,7 @@ class Application {
       customErrorHandler,
       envConfig,
       httpsServerConfig,
+      enableSwagger,
     } = config;
     dotenv.config(envConfig !== undefined ? envConfig : {});
     if (port !== undefined) this.port = port;
@@ -109,6 +116,7 @@ class Application {
     if (process.env.NODE_ENV) {
       this.environment = process.env.NODE_ENV as Environment;
     }
+    if (enableSwagger !== undefined) this.enableSwagger = enableSwagger;
   }
 
   /**
