@@ -22,7 +22,7 @@ import { default as Application } from '@tripathirajan/node-app'
 const app = Application({
     port:3000,
     appName:'test-app',
-    isSecureHttp: false,
+    isSecureHttp: false, // set true if want to enable https
     routes:[{
         method:'get',
         path:'/info',
@@ -83,7 +83,19 @@ const app = Application({
      *
      * add the origin if not in the above list
      * */
-    allowedCorsOrigin:[] // (optional) add origin in this array
+    allowedCorsOrigin:[], // (optional) add origin in this array
+    /**
+     * default keyPath:'' and certPath:''
+     * add path if want to enable https
+     * make sure isSecureHttp: true and keys path added
+     * keep it blank is using http
+     *
+     * @note coming soon with version 1.0.7
+     * */
+    httpsServerConfig:{
+        keyPath:'/path to key.pem',
+        certPath:'/path to cert.pem'
+    }
 })
 
 app.init().then(()=>{

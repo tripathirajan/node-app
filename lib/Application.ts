@@ -5,7 +5,8 @@ import helmet from 'helmet';
 import http from 'http';
 import { AddressInfo } from 'net';
 import path from 'path';
-import { AppConfig, AppMiddleWare, AppRoute, Environment } from './types';
+import { AppConfig, AppMiddleWare, AppRoute, Environment, HttpsServerConfig } from './types';
+import { default as AppServer } from './AppServer';
 
 class Application {
   /**
@@ -31,7 +32,7 @@ class Application {
   /**
    * Environment  of application
    */
-  private environment: Environment = (process.env.environment || 'development') as Environment;
+  private environment: Environment = 'development' as Environment;
 
   /**
    * Server  of application
@@ -63,16 +64,32 @@ class Application {
    */
   private router: Router = Router();
 
+  /**
+   * Custom error handler of application
+   */
   private customErrorHandler: undefined | ((error: Error) => void) = undefined;
 
+  /**
+   * Https server config of application
+   */
+  private httpsServerConfig: HttpsServerConfig | undefined;
   /**
    * Creates an instance of application.
    * @param config
    */
   constructor(config: AppConfig) {
     this.app = express();
-    const { port, appName, isSecureHttp, allowedCorsOrigin, middleware, routes, customErrorHandler, envConfig } =
-      config;
+    const {
+      port,
+      appName,
+      isSecureHttp,
+      allowedCorsOrigin,
+      middleware,
+      routes,
+      customErrorHandler,
+      envConfig,
+      httpsServerConfig,
+    } = config;
     dotenv.config(envConfig !== undefined ? envConfig : {});
     if (port !== undefined) this.port = port;
     if (appName !== undefined) this.appName = appName;
@@ -85,6 +102,12 @@ class Application {
     if (routes !== undefined) this.routes = routes;
     if (customErrorHandler !== undefined && typeof customErrorHandler === 'function') {
       this.customErrorHandler = customErrorHandler;
+    }
+    if (httpsServerConfig !== undefined) {
+      this.httpsServerConfig = httpsServerConfig;
+    }
+    if (process.env.NODE_ENV) {
+      this.environment = process.env.NODE_ENV as Environment;
     }
   }
 
@@ -99,28 +122,20 @@ class Application {
     this.registerRoute();
 
     // server
+    const server = new AppServer(this.app);
     if (this.isSecureHttp) {
-      this.createHttpsServer();
+      this.server = server.createServer({
+        isHttps: true,
+        keyPath: this.httpsServerConfig?.keyPath,
+        certPath: this.httpsServerConfig?.certPath,
+      });
     } else {
-      this.createHttpServer();
+      this.server = server.createServer({ isHttps: false });
     }
     // start app
     this.startApp();
     // error handler
     this.app.use(this.errorHandler.bind(this));
-  }
-
-  /**
-   * Creates http server
-   */
-  private createHttpServer(): void {
-    this.server = http.createServer(this.app);
-  }
-  /**
-   * Creates https server
-   */
-  private createHttpsServer(): void {
-    // todo: create https server
   }
 
   /**
@@ -215,7 +230,7 @@ class Application {
     }
   }
   private logApplicationStatus(host: string, port: number) {
-    process.stdout.write('\x1b[32m');
+    process.stdout.write('\x1b[34m');
     process.stdout.write('*************************************************\n');
     process.stdout.write(`App Name: ${this.appName}\n`);
     process.stdout.write(`Host: ${host || 'localhost'}\n`);
@@ -223,7 +238,10 @@ class Application {
     process.stdout.write(`Environment: ${this.environment}\n`);
     process.stdout.write(`Status: Running \n`);
     process.stdout.write('*************************************************\n \n');
-    process.stdout.write('Thanks for using package @tripathirajan/node-app \n \n');
+    process.stdout.write('Thanks for using package');
+    process.stdout.write('\x1b[00m');
+    process.stdout.write('\x1b[31m @tripathirajan/node-app \x1b[00m \n \n');
+    process.stdout.write('\x1b[34m');
     process.stdout.write('*************************************************\n');
     process.stdout.write('\x1b[00m');
   }
