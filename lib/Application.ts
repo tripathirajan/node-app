@@ -210,7 +210,9 @@ class Application {
     if (this.customErrorHandler && typeof this.customErrorHandler === 'function') {
       this.customErrorHandler(err);
     }
-    res.status(500).json({ message: 'Internal server error.' });
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Internal server error.' }); 
+    }
   }
   private logApplicationStatus(host: string, port: number) {
     process.stdout.write('\x1b[32m');
