@@ -226,7 +226,7 @@ class Application {
       this.customErrorHandler(err);
     }
     if (!res.headersSent) {
-      res.status(500).json({ message: 'Internal server error.' }); 
+      res.status(500).json({ message: 'Internal server error.' });
     }
   }
   private logApplicationStatus(host: string, port: number) {
