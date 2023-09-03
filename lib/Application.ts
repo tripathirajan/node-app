@@ -165,7 +165,7 @@ class Application {
             callback(new Error('Not allowed by CORS'));
           }
         },
-        ...this.corsConfig
+        ...this.corsConfig,
       }),
     );
     // custom middleware
