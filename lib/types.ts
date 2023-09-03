@@ -21,7 +21,7 @@ export type AppConfig = {
   appName: string;
   isSecureHttp: boolean;
   allowedCorsOrigin?: string[];
-  corsConfig: any;
+  corsConfig?: any;
   middleware?: AppMiddleWare[];
   routes?: AppRoute[];
   customErrorHandler?: (err: Error) => void;
