@@ -1,6 +1,6 @@
 {
   "name": "@tripathirajan/node-app",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "NodeJs-ExpressJs framework which handle basic setup for new app",
   "main": "dist/index.js",
   "repository": "https://github.com/tripathirajan/node-app.git",
@@ -46,7 +46,6 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "helmet": "^7.0.0"
   }

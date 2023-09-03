@@ -1,5 +1,4 @@
 import cors from 'cors';
-import dotenv from 'dotenv';
 import express, { Router } from 'express';
 import helmet from 'helmet';
 import http from 'http';
@@ -53,12 +52,21 @@ class Application {
    * Allowed cors origin of application
    */
   private allowedCorsOrigin: string[] = [
-    'http://localhost:4000/',
-    'http://localhost:3000/',
+    'http://localhost:4000',
+    'http://localhost:3000',
     'http://127.0.0.1:4000',
     'http://127.0.0.1:3000',
   ];
 
+  /**
+   * Cors config of application
+   */
+  private corsConfig: any = {
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 200,
+    credentials: true,
+  };
   /**
    * Router  of application
    */
@@ -84,19 +92,21 @@ class Application {
       appName,
       isSecureHttp,
       allowedCorsOrigin,
+      corsConfig,
       middleware,
       routes,
       customErrorHandler,
-      envConfig,
       httpsServerConfig,
     } = config;
-    dotenv.config(envConfig !== undefined ? envConfig : {});
     if (port !== undefined) this.port = port;
     if (appName !== undefined) this.appName = appName;
     if (isSecureHttp !== undefined) this.isSecureHttp = isSecureHttp;
     if (this.environment === 'production') this.isSecureHttp = true;
     if (allowedCorsOrigin !== undefined) {
-      this.allowedCorsOrigin.concat(allowedCorsOrigin);
+      this.allowedCorsOrigin = this.allowedCorsOrigin.concat(allowedCorsOrigin);
+    }
+    if (corsConfig !== undefined) {
+      this.corsConfig = { ...this.corsConfig, ...corsConfig };
     }
     if (middleware !== undefined) this.appMiddleware = middleware;
     if (routes !== undefined) this.routes = routes;
@@ -155,6 +165,7 @@ class Application {
             callback(new Error('Not allowed by CORS'));
           }
         },
+        ...this.corsConfig
       }),
     );
     // custom middleware
